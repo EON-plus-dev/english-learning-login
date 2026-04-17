@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LinguaFlow — Sign In</title>
+  <style>
+    /* ─── Reset & base ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-from: #0f2027;
+      --bg-mid:  #203a43;
+      --bg-to:   #2c5364;
+      --glass-bg: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.18);
+      --accent:  #38bdf8;
+      --accent-hover: #7dd3fc;
+      --text:    #f0f9ff;
+      --muted:   rgba(240, 249, 255, 0.55);
+      --error:   #f87171;
+      --success: #4ade80;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--bg-from), var(--bg-mid), var(--bg-to));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      color: var(--text);
+    }
+
+    /* ─── Animated background blobs ─── */
+    .blobs {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.35;
+      animation: float 12s ease-in-out infinite;
+    }
+
+    .blob-1 {
+      width: 500px; height: 500px;
+      background: #0ea5e9;
+      top: -150px; left: -100px;
+      animation-delay: 0s;
+    }
+
+    .blob-2 {
+      width: 400px; height: 400px;
+      background: #6366f1;
+      bottom: -120px; right: -80px;
+      animation-delay: -4s;
+    }
+
+    .blob-3 {
+      width: 300px; height: 300px;
+      background: #14b8a6;
+      top: 40%; left: 60%;
+      animation-delay: -8s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33%       { transform: translate(30px, -40px) scale(1.05); }
+      66%       { transform: translate(-20px, 25px) scale(0.97); }
+    }
+
+    /* ─── Card ─── */
+    .card {
+      position: relative;
+      z-index: 1;
+      width: min(420px, 92vw);
+      padding: 48px 40px 40px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      box-shadow:
+        0 8px 32px rgba(0,0,0,0.35),
+        inset 0 1px 0 rgba(255,255,255,0.12);
+      animation: cardIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(32px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ─── Logo / brand ─── */
+    .brand {
+      text-align: center;
+      margin-bottom: 36px;
+      animation: fadeDown 0.5s 0.1s ease both;
+    }
+
+    .brand-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      border-radius: 18px;
+      font-size: 30px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 20px rgba(56, 189, 248, 0.4);
+    }
+
+    .brand h1 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #e0f2fe, #a5b4fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .brand p {
+      font-size: 0.875rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── Form ─── */
+    .form { display: flex; flex-direction: column; gap: 18px; }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .field:nth-child(1) { animation-delay: 0.15s; }
+    .field:nth-child(2) { animation-delay: 0.22s; }
+    .field:nth-child(3) { animation-delay: 0.29s; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 14px 12px 40px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+    }
+
+    input::placeholder { color: var(--muted); }
+
+    input:focus {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.08);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+
+    input.error {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.15);
+    }
+
+    .toggle-pwd {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 16px;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+
+    .toggle-pwd:hover { color: var(--text); }
+
+    /* ─── Row: remember + forgot ─── */
+    .row-aux {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: fadeUp 0.5s 0.33s ease both;
+    }
+
+    .remember {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--muted);
+      transition: color 0.2s;
+    }
+
+    .remember:hover { color: var(--text); }
+
+    .remember input[type="checkbox"] { accent-color: var(--accent); }
+
+    .forgot {
+      font-size: 0.85rem;
+      color: var(--accent);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .forgot:hover { color: var(--accent-hover); text-decoration: underline; }
+
+    /* ─── Error message ─── */
+    .error-msg {
+      display: none;
+      font-size: 0.8rem;
+      color: var(--error);
+      padding: 10px 14px;
+      background: rgba(248, 113, 113, 0.1);
+      border: 1px solid rgba(248, 113, 113, 0.25);
+      border-radius: 10px;
+      text-align: center;
+      animation: shake 0.4s ease;
+    }
+
+    .error-msg.visible { display: block; }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60%  { transform: translateX(-6px); }
+      40%, 80%  { transform: translateX(6px); }
+    }
+
+    /* ─── Submit button ─── */
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.15s, box-shadow 0.2s, filter 0.2s;
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+      animation: fadeUp 0.5s 0.38s ease both;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 28px rgba(99, 102, 241, 0.55);
+      filter: brightness(1.08);
+    }
+
+    .btn-submit:active:not(:disabled) { transform: translateY(0); }
+
+    .btn-submit:disabled { opacity: 0.65; cursor: not-allowed; }
+
+    /* Ripple */
+    .btn-submit .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      transform: scale(0);
+      animation: ripple 0.55s linear;
+      pointer-events: none;
+    }
+
+    @keyframes ripple {
+      to { transform: scale(4); opacity: 0; }
+    }
+
+    /* Loading spinner inside button */
+    .btn-submit .spinner {
+      display: none;
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto;
+    }
+
+    .btn-submit.loading .btn-label { display: none; }
+    .btn-submit.loading .spinner { display: block; }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ─── Divider ─── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      animation: fadeUp 0.5s 0.42s ease both;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.12);
+    }
+
+    /* ─── Social buttons ─── */
+    .socials {
+      display: flex;
+      gap: 12px;
+      animation: fadeUp 0.5s 0.46s ease both;
+    }
+
+    .btn-social {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .btn-social:hover {
+      background: rgba(255,255,255,0.13);
+      transform: translateY(-1px);
+    }
+
+    .btn-social svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    /* ─── Sign-up link ─── */
+    .signup-row {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+      animation: fadeUp 0.5s 0.5s ease both;
+    }
+
+    .signup-row a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .signup-row a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+    /* ─── Success overlay ─── */
+    .success-overlay {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 24px 0 8px;
+      animation: fadeDown 0.4s ease;
+    }
+
+    .success-overlay.visible { display: flex; }
+
+    .success-icon {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, #4ade80, #22d3ee);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 34px;
+      box-shadow: 0 4px 20px rgba(74, 222, 128, 0.4);
+      animation: pop 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes pop {
+      from { transform: scale(0.5); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    .success-overlay h2 { font-size: 1.3rem; font-weight: 600; }
+    .success-overlay p  { color: var(--muted); font-size: 0.875rem; text-align: center; }
+
+    /* ─── Mock-data hint (dev only) ─── */
+    .dev-hint {
+      margin-top: 28px;
+      padding: 14px 16px;
+      background: rgba(56, 189, 248, 0.07);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 12px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.6;
+      animation: fadeUp 0.5s 0.55s ease both;
+    }
+
+    .dev-hint strong { color: var(--accent); }
+
+    .dev-hint table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+    .dev-hint td { padding: 2px 8px 2px 0; }
+    .dev-hint td:first-child { font-weight: 600; color: var(--muted); width: 80px; }
+    .dev-hint td:last-child { font-family: monospace; color: var(--text); }
+
+    .dev-hint .fill-btn {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 4px 10px;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 6px;
+      color: var(--accent);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .dev-hint .fill-btn:hover { background: rgba(56, 189, 248, 0.25); }
+  </style>
+</head>
+<body>
+
+<!-- Animated background blobs -->
+<div class="blobs" aria-hidden="true">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<div class="card" id="card">
+
+  <!-- Brand -->
+  <div class="brand">
+    <div class="brand-icon">📚</div>
+    <h1>LinguaFlow</h1>
+    <p>Your smart English learning companion</p>
+  </div>
+
+  <!-- Login form -->
+  <form class="form" id="loginForm" novalidate>
+
+    <div class="field">
+      <label for="email">Email</label>
+      <div class="input-wrap">
+        <span class="input-icon">✉️</span>
+        <input
+          id="email"
+          type="email"
+          name="email"
+          placeholder="you@example.com"
+          autocomplete="username"
+          required
+        />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="password">Password</label>
+      <div class="input-wrap">
+        <span class="input-icon">🔒</span>
+        <input
+          id="password"
+          type="password"
+          name="password"
+          placeholder="••••••••"
+          autocomplete="current-password"
+          required
+        />
+        <button type="button" class="toggle-pwd" id="togglePwd" aria-label="Toggle password visibility">👁</button>
+      </div>
+    </div>
+
+    <div class="row-aux">
+      <label class="remember">
+        <input type="checkbox" id="remember" />
+        Remember me
+      </label>
+      <a href="#" class="forgot">Forgot password?</a>
+    </div>
+
+    <div class="error-msg" id="errorMsg" role="alert"></div>
+
+    <button type="submit" class="btn-submit" id="submitBtn">
+      <span class="btn-label">Sign In</span>
+      <div class="spinner"></div>
+    </button>
+
+    <div class="divider">or continue with</div>
+
+    <div class="socials">
+      <button type="button" class="btn-social">
+        <!-- Google icon -->
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Google
+      </button>
+      <button type="button" class="btn-social">
+        <!-- Apple icon -->
+        <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.4c1.39.07 2.36.74 3.18.79 1.2-.24 2.35-.93 3.63-.84 1.54.13 2.71.72 3.46 1.85-3.15 1.91-2.4 6.1.62 7.29-.56 1.51-1.3 3-2.89 4.79zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+        </svg>
+        Apple
+      </button>
+    </div>
+
+    <p class="signup-row">
+      Don't have an account? <a href="#">Sign up free</a>
+    </p>
+
+  </form>
+
+  <!-- Success state (shown after login) -->
+  <div class="success-overlay" id="successOverlay">
+    <div class="success-icon">✓</div>
+    <h2>Welcome back!</h2>
+    <p>Redirecting to your dashboard…</p>
+  </div>
+
+  <!-- Dev mock-data hint -->
+  <div class="dev-hint" id="devHint">
+    <strong>🧪 Mock credentials for testing</strong>
+    <table>
+      <tr><td>Email:</td><td>student@linguaflow.app</td></tr>
+      <tr><td>Password:</td><td>Learn2024!</td></tr>
+    </table>
+    <span class="fill-btn" id="fillMock">Auto-fill</span>
+  </div>
+
+</div>
+
+<script>
+  // ─── Mock users ───
+  const MOCK_USERS = [
+    { email: "student@linguaflow.app",  password: "Learn2024!", name: "Alex" },
+    { email: "teacher@linguaflow.app",  password: "Teach2024!", name: "Maria" },
+    { email: "admin@linguaflow.app",    password: "Admin2024!", name: "Admin" },
+  ];
+
+  // ─── DOM refs ───
+  const form          = document.getElementById("loginForm");
+  const emailInput    = document.getElementById("email");
+  const passwordInput = document.getElementById("password");
+  const togglePwd     = document.getElementById("togglePwd");
+  const submitBtn     = document.getElementById("submitBtn");
+  const errorMsg      = document.getElementById("errorMsg");
+  const successOverlay = document.getElementById("successOverlay");
+  const fillMock      = document.getElementById("fillMock");
+
+  // ─── Toggle password visibility ───
+  togglePwd.addEventListener("click", () => {
+    const isText = passwordInput.type === "text";
+    passwordInput.type = isText ? "password" : "text";
+    togglePwd.textContent = isText ? "👁" : "🙈";
+  });
+
+  // ─── Auto-fill mock credentials ───
+  fillMock.addEventListener("click", () => {
+    emailInput.value    = MOCK_USERS[0].email;
+    passwordInput.value = MOCK_USERS[0].password;
+    emailInput.classList.remove("error");
+    passwordInput.classList.remove("error");
+    hideError();
+  });
+
+  // ─── Ripple effect ───
+  submitBtn.addEventListener("mousedown", (e) => {
+    const rect = submitBtn.getBoundingClientRect();
+    const ripple = document.createElement("span");
+    const size = Math.max(rect.width, rect.height);
+    ripple.classList.add("ripple");
+    ripple.style.cssText = `
+      width: ${size}px; height: ${size}px;
+      left: ${e.clientX - rect.left - size / 2}px;
+      top: ${e.clientY - rect.top - size / 2}px;
+    `;
+    submitBtn.appendChild(ripple);
+    ripple.addEventListener("animationend", () => ripple.remove());
+  });
+
+  // ─── Validation helpers ───
+  function showError(msg) {
+    errorMsg.textContent = msg;
+    errorMsg.classList.add("visible");
+    errorMsg.style.animation = "none";
+    requestAnimationFrame(() => {
+      errorMsg.style.animation = "";
+    });
+  }
+
+  function hideError() {
+    errorMsg.classList.remove("visible");
+  }
+
+  function setLoading(on) {
+    submitBtn.disabled = on;
+    submitBtn.classList.toggle("loading", on);
+  }
+
+  // ─── Fake async login ───
+  function fakeAuth(email, password) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const user = MOCK_USERS.find(
+          u => u.email.toLowerCase() === email.toLowerCase() && u.password === password
+        );
+        if (user) resolve(user);
+        else reject(new Error("Invalid email or password. Try the mock credentials below."));
+      }, 1200);
+    });
+  }
+
+  // ─── Form submit ───
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    hideError();
+
+    const email    = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    // Client-side validation
+    let valid = true;
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      emailInput.classList.add("error");
+      valid = false;
+    } else {
+      emailInput.classList.remove("error");
+    }
+
+    if (!password || password.length < 6) {
+      passwordInput.classList.add("error");
+      valid = false;
+    } else {
+      passwordInput.classList.remove("error");
+    }
+
+    if (!valid) {
+      showError("Please fill in all fields correctly.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const user = await fakeAuth(email, password);
+      // Success
+      form.style.transition = "opacity 0.3s, transform 0.3s";
+      form.style.opacity = "0";
+      form.style.transform = "translateY(-10px)";
+      setTimeout(() => {
+        form.style.display = "none";
+        document.getElementById("devHint").style.display = "none";
+        successOverlay.classList.add("visible");
+      }, 300);
+    } catch (err) {
+      showError(err.message);
+      passwordInput.value = "";
+      passwordInput.focus();
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  // Clear error on input
+  [emailInput, passwordInput].forEach(input => {
+    input.addEventListener("input", () => {
+      input.classList.remove("error");
+      hideError();
+    });
+  });
+</script>
+</body>
+</html>
